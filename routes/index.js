@@ -1,56 +1,44 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const createError = require('http-errors');
+const router = express.Router();
+
+let activeGames = [];
 
 router.get('/', function(req, res, next) {
-  res.redirect('/game');
+  res.redirect('/game/create');
 });
 
-router.get('/game', function(req, res, next) {
-  res.render('game', { title: 'jTrivia' });
+function makeId(length) {
+   var result           = '';
+   var characters       = 'abcdefghijklmnopqrstuvwxyz';
+   var charactersLength = characters.length;
+   for ( var i = 0; i < length; i++ ) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   }
+   return result;
+}
+
+router.get('/game/create', function(req, res, next) {
+  // generate new IDs until we get one that isn't in use
+  let newId = "";
+  do {
+    newId = makeId(4);
+  } while (typeof activeGames[newId] !== 'undefined')
+
+  activeGames[newId] = {};
+  res.redirect('/game/'+newId);
 });
 
-function send(ws, action, data) {
-  const payload = {
-    "a": action,
-    "t": Date.now(),
-    "d": data
-  };
-  const json = JSON.stringify(payload);
-  ws.send(json);
-  console.log('WS --> %s', json);
-}
-
-function sendPing(ws) {
-  send(ws, "ping", null);
-}
-
-function sendHeading(ws, title, body, icon) {
-  send(ws, "heading", {
-    "title": title,
-    "body": body,
-    "icon": icon
+router.get('/game/:gameId([a-z]{4})', function(req, res, next) {
+  if (typeof activeGames[req.params['gameId']] == 'undefined') {
+    next(createError(404));
+    return;
+  }
+  res.render('game', {
+    title: 'jTrivia',
+    gameId: req.params['gameId'],
+    game: activeGames[req.params['gameId']]
   });
-}
-
-function sendMultipleChoiceQuestion(ws, question, answers) {
-  send(ws, "multipleChoiceQuestion", {
-    "question": question,
-    "answers": answers
-  });
-}
-
-router.ws('/game', function(ws, req) {
-  ws.on('message', function(msg) {
-    console.log('WS <-- %s', msg);
-  });
-  sendPing(ws);
-  // sendHeading(ws, "Welcome", "The game is loading, please wait...", "waiting")
-  sendMultipleChoiceQuestion(ws, "What color is the sky?", [
-    { id: 1, text: "Red" },
-    { id: 2, text: "Green" },
-    { id: 3, text: "Blue" },
-    { id: 4, text: "Other" }
-  ]);
 });
 
 module.exports = router;

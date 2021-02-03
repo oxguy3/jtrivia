@@ -1,6 +1,9 @@
 extends layout
 
 block content
-  h1= message
-  h2= error.status
-  pre #{error.stack}
+  h1 #{message}
+  p(class="lead")
+    ="Sorry, your request could not be completed successfully."
+  div(class="card border-danger")
+    div(class="card-body")
+      pre(class="text-danger") #{error.stack}
