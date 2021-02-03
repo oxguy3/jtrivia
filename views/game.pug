@@ -2,7 +2,10 @@ extends layout
 
 block content
   h1(class="text-center")= title
-  section(class="gamebox card")
-    div(class="card-body")
-      ="Loading..."
+  section(class="gamebox")
+    div(class="card")
+      div(class="card-body")
+        ="Waiting for messages from the server..."
+  script(src="/lib/jquery/jquery.min.js")
+  script(src="/lib/bootstrap/js/bootstrap.bundle.min.js")
   script(src="/js/game.js")

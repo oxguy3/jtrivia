@@ -21,4 +21,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 
+app.use('/lib/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
+app.use('/lib/bootstrap', express.static(__dirname + '/node_modules/bootstrap/dist/'));
+app.use('/webfonts', express.static(__dirname + '/node_modules/@fortawesome/fontawesome-free/webfonts/'));
+
 module.exports = app;
