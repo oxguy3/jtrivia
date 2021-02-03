@@ -2,8 +2,6 @@ const express = require('express');
 const createError = require('http-errors');
 const router = express.Router();
 
-let activeGames = [];
-
 router.get('/', function(req, res, next) {
   res.redirect('/game/create');
 });
@@ -23,21 +21,21 @@ router.get('/game/create', function(req, res, next) {
   let newId = "";
   do {
     newId = makeId(4);
-  } while (typeof activeGames[newId] !== 'undefined')
+  } while (typeof req.app.activeGames[newId] !== 'undefined')
 
-  activeGames[newId] = {};
+  req.app.activeGames[newId] = {};
   res.redirect('/game/'+newId);
 });
 
 router.get('/game/:gameId([a-z]{4})', function(req, res, next) {
-  if (typeof activeGames[req.params['gameId']] == 'undefined') {
+  if (typeof req.app.activeGames[req.params['gameId']] == 'undefined') {
     next(createError(404));
     return;
   }
   res.render('game', {
     title: 'jTrivia',
     gameId: req.params['gameId'],
-    game: activeGames[req.params['gameId']]
+    game: req.app.activeGames[req.params['gameId']]
   });
 });
 
